@@ -15,6 +15,14 @@ You need a CoSens account. [Request access](https://cosens.ai/request-access/).
 
 ## Install
 
+### One command for Codex and Claude Code
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/PreSeen/cosens-plugin/main/install.sh | bash
+```
+
+It runs the clients' own plugin commands shown below for every client it finds (`--target codex` or `--target claude` to pick one), then opens the browser to sign in (`--no-login` to skip). If an earlier CoSens installer was used on the machine, it first removes what that installer left (the old Memory plugin and its local marketplaces, a `cosens` MCP server pointing at `memory.preseen.ai`, the `cosens_rsi` plugin and its `AGENTS.md` blocks), which would otherwise take the `cosens` name or duplicate the skills. Every file it changes is copied, and every folder it removes is moved, into `~/.cosens-backup/<time>/`. It keeps an existing `cosens_connector` (API key) server.
+
 ### Claude (web, desktop and Cowork)
 
 1. Open **Customize → Plugins → Add → Add marketplace** and enter `PreSeen/cosens-plugin`.
