@@ -44,7 +44,11 @@ codex mcp login cosens
 
 ## Sign-in and the RSI tools
 
-The plugin signs in with OAuth in the browser and stores no credential. OAuth sign-in currently gives the Memory tools only; the RSI tools answer with a permission error. To use RSI from Claude Code or Codex today, use the [CoSens installer](https://cosens.ai/docs/), which stores an API key, instead of this plugin. Do not use both: the installer registers its own `cosens_connector` server, and the agent would see every tool twice.
+The plugin signs in with OAuth in the browser and stores no credential. The consent page lists what the connection may do: read and write your memory, upload documents, and read and create Recipes and runs in RSI. After you approve, both the Memory and the RSI tools work.
+
+A connection authorized before RSI access was available holds Memory permissions only, and its RSI tools answer with a permission error. Remove the connector (or uninstall the plugin), add it again and sign in; the new connection asks for RSI access too.
+
+Do not install the plugin next to the [CoSens installer](https://cosens.ai/docs/), which registers its own `cosens_connector` server with an API key: the agent would see every tool twice.
 
 ## Check the connection
 
