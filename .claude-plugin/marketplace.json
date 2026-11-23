@@ -1,0 +1,24 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "cosens-plugin",
+  "description": "CoSens plugins for Claude.",
+  "owner": {
+    "name": "PreSeen AI",
+    "url": "https://cosens.ai"
+  },
+  "plugins": [
+    {
+      "name": "cosens",
+      "displayName": "CoSens",
+      "source": "./plugins/claude/cosens",
+      "description": "CoSens Memory and RSI: recall and save durable context, upload documents, and reuse Recipes that CoSens learns from work you confirm.",
+      "version": "0.6.0",
+      "category": "productivity",
+      "homepage": "https://cosens.ai/docs/",
+      "author": {
+        "name": "PreSeen AI",
+        "url": "https://cosens.ai"
+      }
+    }
+  ]
+}

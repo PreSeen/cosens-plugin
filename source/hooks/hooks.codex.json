@@ -1,0 +1,49 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/scripts/emit_system_message.py\" session-start",
+            "statusMessage": "cosens: loading user memory"
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/scripts/emit_system_message.py\" post-compact",
+            "statusMessage": "cosens: checking durable memory after compaction"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(mcp__cosens__memory_write|cosens\\.memory_write|memory_write)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/scripts/emit_system_message.py\" post-tool-use",
+            "statusMessage": "cosens: checking memory write result"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/scripts/emit_system_message.py\" stop",
+            "statusMessage": "cosens: checking for durable memory before finishing"
+          }
+        ]
+      }
+    ]
+  }
+}

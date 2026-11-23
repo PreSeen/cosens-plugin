@@ -1,0 +1,20 @@
+{
+  "name": "cosens-plugin",
+  "interface": {
+    "displayName": "CoSens"
+  },
+  "plugins": [
+    {
+      "name": "cosens",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex/cosens"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

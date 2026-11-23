@@ -1,0 +1,38 @@
+{
+  "description": "Cosens hooks for Claude Code: session-start memory bootstrap, pre-compaction durable-memory preservation, and stop-time memory hygiene.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/emit_system_message.py\" session-start",
+            "statusMessage": "cosens: loading user memory"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/emit_system_message.py\" pre-compact",
+            "statusMessage": "cosens: preserving durable memory before compaction"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/emit_system_message.py\" stop",
+            "statusMessage": "cosens: checking for durable memory before finishing"
+          }
+        ]
+      }
+    ]
+  }
+}
