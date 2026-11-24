@@ -12,7 +12,7 @@ Use the configured `cosens` MCP tools. The client supplies the credentials; neve
 - Poll `rsi_execution_get` for status, stage, progress, clarification questions and test results. Ask the user each clarification question and send their answer with `rsi_execution_clarification_answer`; when the result names a `continuation_execution_id`, follow that execution.
 - Use `rsi_execution_append_evidence` to add evidence to a running execution, `rsi_execution_cancel` to stop a queued or running one, and `rsi_execution_list` to list executions.
 - Use `rsi_rubrics_list` and `rsi_rubrics_get` to read Rubrics, and `rsi_recipe_test` to test a Recipe version against an active execution's task with a given Rubrics version.
-- When the user hands you a Recipe they wrote, upload it with `rsi_recipe_insert`: send the whole file as `markdown` in the Skill format (YAML frontmatter with nonempty `name` and `description`, then the instructions). It becomes a new Recipe whose v1 is available at once.
+- When the user hands you a Recipe they wrote, upload it with `rsi_recipe_create`: send the whole file as `markdown` in the Skill format (YAML frontmatter with nonempty `name` and `description`, then the instructions). It becomes a new Recipe whose v1 is available at once.
 
 If an `rsi_*` tool answers with a permission error, the connection was authorized before RSI access was available: say so, and ask the user to remove the CoSens connector, add it again and sign in. Do not retry the call.
 
