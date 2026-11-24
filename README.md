@@ -15,13 +15,15 @@ You need a CoSens account. [Request access](https://cosens.ai/request-access/).
 
 ## Install
 
+The [CoSens Console](https://console.cosens.ai/) shows the steps for each client under **Connect an agent**.
+
 ### One command for Codex and Claude Code
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PreSeen/cosens-plugin/main/install.sh | bash
+curl -fsSL https://rsi.cosens.ai/api/agent/install | bash
 ```
 
-It runs the clients' own plugin commands shown below for every client it finds (`--target codex` or `--target claude` to pick one), then opens the browser to sign in (`--no-login` to skip). If an earlier CoSens installer was used on the machine, it first removes what that installer left (the old Memory plugin and its local marketplaces, a `cosens` MCP server pointing at `memory.preseen.ai`, the `cosens_rsi` plugin and its `AGENTS.md` blocks), which would otherwise take the `cosens` name or duplicate the skills. Every file it changes is copied, and every folder it removes is moved, into `~/.cosens-backup/<time>/`. It keeps an existing `cosens_connector` (API key) server.
+CoSens serves this installer (source: `src/cosens_rsi/static/install-plugin.sh` in the CoSens RSI service). It runs the clients' own plugin commands shown below for every client it finds (`--target codex` or `--target claude` to pick one), then opens the browser to sign in (`--no-login` to skip). If an earlier CoSens installer was used on the machine, it first removes what that installer left, which would otherwise take the `cosens` name or duplicate the tools and skills. Every file it changes is copied, and every folder it removes is moved, into `~/.cosens-backup/<time>/`.
 
 ### Claude (web, desktop and Cowork)
 
@@ -56,7 +58,7 @@ The plugin signs in with OAuth in the browser and stores no credential. The cons
 
 A connection authorized before RSI access was available holds Memory permissions only, and its RSI tools answer with a permission error. Remove the connector (or uninstall the plugin), add it again and sign in; the new connection asks for RSI access too.
 
-Do not install the plugin next to the [CoSens installer](https://cosens.ai/docs/), which registers its own `cosens_connector` server with an API key: the agent would see every tool twice.
+Earlier CoSens installers registered a `cosens_connector` server with an API key. Keeping it next to the plugin shows every tool twice; the one-command installer above removes it.
 
 ## Check the connection
 
