@@ -1,6 +1,6 @@
 {
   "name": "cosens",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "CoSens Memory and RSI: recall and save durable context, upload documents, and reuse Recipes that CoSens learns from work you confirm.",
   "author": {
     "name": "PreSeen AI",
@@ -14,6 +14,7 @@
     "mcp",
     "agent"
   ],
+  "license": "Apache-2.0",
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "hooks": "./hooks/hooks.json",

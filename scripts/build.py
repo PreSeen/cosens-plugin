@@ -46,6 +46,7 @@ def claude_manifest(m: dict) -> dict:
         "homepage": m["homepage"],
         "repository": m["repository"],
         "keywords": m["keywords"],
+        "license": m["license"],
         "icon": "./assets/logo.svg",
         "privacyPolicyUrl": m["privacyPolicyUrl"],
         "termsOfServiceUrl": m["termsOfServiceUrl"],
@@ -62,6 +63,7 @@ def codex_manifest(m: dict) -> dict:
         "homepage": m["homepage"],
         "repository": m["repository"],
         "keywords": m["keywords"],
+        "license": m["license"],
         "skills": "./skills/",
         "mcpServers": "./.mcp.json",
         "hooks": "./hooks/hooks.json",
@@ -89,6 +91,7 @@ def write_plugin(dest: Path, host: str, m: dict) -> None:
     (dest / "hooks").mkdir(parents=True)
     shutil.copyfile(SOURCE / "hooks" / f"hooks.{host}.json", dest / "hooks" / "hooks.json")
     shutil.copyfile(SOURCE / "mcp.json", dest / ".mcp.json")
+    shutil.copyfile(ROOT / "LICENSE", dest / "LICENSE")
     manifest_dir = dest / (".claude-plugin" if host == "claude" else ".codex-plugin")
     manifest_dir.mkdir()
     manifest = claude_manifest(m) if host == "claude" else codex_manifest(m)
