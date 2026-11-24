@@ -86,6 +86,10 @@ After editing `source/`, run `python3 scripts/build.py` and commit the generated
 
 The Memory skills and the hook script follow the Memory service's tool guidance (`PreSeen/friday-memory`, `backend/app/mcp_agent_guidance.py`); update them here when that guidance changes.
 
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE).
+
 ## Support
 
 Documentation: [cosens.ai/docs](https://cosens.ai/docs/). Privacy: [cosens.ai/privacy](https://cosens.ai/privacy/). Terms: [cosens.ai/terms](https://cosens.ai/terms/).
