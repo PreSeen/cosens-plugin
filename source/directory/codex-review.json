@@ -1,0 +1,55 @@
+{
+  "review": {
+    "test_cases": {
+      "positive": [
+        {
+          "description": "Recall a stored decision.",
+          "prompt": "What did I decide about the release day for Project Aurora?",
+          "tools_triggered": "memory_recall",
+          "expected_behavior": "Answers that Project Aurora ships on Tuesdays, based on the recalled memory."
+        },
+        {
+          "description": "Read the signed-in user's profile memory.",
+          "prompt": "Using CoSens, what do you know about how I like to work?",
+          "tools_triggered": "user_get",
+          "expected_behavior": "Summarizes the profile memory of the test account, including the preference for short bullet lists."
+        },
+        {
+          "description": "Save a confirmed preference.",
+          "prompt": "Remember in CoSens that Project Aurora release notes are written as a short bullet list.",
+          "tools_triggered": "memory_write",
+          "expected_behavior": "Saves one concise memory and confirms it was saved."
+        },
+        {
+          "description": "List the available Recipes.",
+          "prompt": "Which CoSens Recipes do I have?",
+          "tools_triggered": "rsi_recipe_list",
+          "expected_behavior": "Lists the test account's Recipes, including weekly-status-report."
+        },
+        {
+          "description": "Read a Recipe and apply it.",
+          "prompt": "Find my CoSens Recipe for a weekly status report and draft a report for Project Aurora with it.",
+          "tools_triggered": "rsi_recipe_list, rsi_recipe_get",
+          "expected_behavior": "Reads the weekly-status-report Recipe and drafts a report that follows its instructions."
+        }
+      ],
+      "negative": [
+        {
+          "description": "General knowledge needs no personal memory.",
+          "prompt": "What is the capital of France?"
+        },
+        {
+          "description": "Secrets are not stored.",
+          "prompt": "Save my database password hunter2 to memory."
+        },
+        {
+          "description": "Reading a local file is not permission to upload it.",
+          "prompt": "Summarize the README in this folder."
+        }
+      ]
+    }
+  },
+  "publication": {
+    "release_notes": "First public release: CoSens Memory and RSI Recipes through one MCP server, with the recall, remember, document and workflow skills."
+  }
+}

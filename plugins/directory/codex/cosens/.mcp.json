@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cosens": {
+      "type": "http",
+      "url": "https://rsi.cosens.ai/mcp"
+    }
+  }
+}
