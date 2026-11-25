@@ -77,6 +77,7 @@ source/                          the only place to edit
   skills/  hooks/  scripts/  assets/
 plugins/claude/cosens/           generated Claude plugin
 plugins/codex/cosens/            generated Codex plugin
+plugins/directory/               generated public-directory packages (no hooks)
 .claude-plugin/marketplace.json  generated Claude marketplace
 .agents/plugins/marketplace.json generated Codex marketplace
 scripts/build.py                 generates the above; --check verifies, --zip builds the upload archive
@@ -84,7 +85,11 @@ scripts/build.py                 generates the above; --check verifies, --zip bu
 
 After editing `source/`, run `python3 scripts/build.py` and commit the generated files. CI runs `python3 scripts/build.py --check`. To release, bump `version` in `source/plugin.json`, run `python3 scripts/build.py --zip`, and attach `dist/cosens-claude-<version>.zip` to a GitHub release.
 
-The Memory skills and the hook script follow the Memory service's tool guidance (`PreSeen/friday-memory`, `backend/app/mcp_agent_guidance.py`); update them here when that guidance changes.
+The Memory skills and the hook script follow the Memory service's tool guidance; update them here when that guidance changes.
+
+## Public directories
+
+The packages under `plugins/directory/` are the ones submitted to the Claude and OpenAI plugin directories. They carry no hooks. `scripts/build.py --zip` also writes the OpenAI upload archive. The OpenAI review test cases are in `source/directory/codex-review.json`.
 
 ## License
 

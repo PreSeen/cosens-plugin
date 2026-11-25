@@ -1,0 +1,61 @@
+---
+name: document
+description: Upload authorized long files and documents to cosens with document_upload so they become searchable memory.
+---
+
+# Document
+
+Use this when the user explicitly wants long material — files, PDFs, reports, meeting notes, PRDs, design docs, screenshots, OCR text, logs, transcripts — to become durable, searchable memory. For short distilled context use the `remember` skill instead.
+
+Upload with `document_upload`. A `summary` and `background` are optional but strongly recommended — they sharply improve later recall. Keep `ingest_mode` at its `semantic` default; use `graph` only when relation extraction is intended and authorized.
+
+Upload is two steps, so file bytes never pass through model output:
+
+1. Call `document_upload` with metadata only. `filename` is required. `mime_type` is optional and inferred from filename. `uploaded_at` is optional and defaults to backend upload time.
+2. Run the returned `curl` command in a shell, replacing `<local file path>` with the file's path. Its JSON output is the upload result (`document_id`, `content_hash`, ingest status). The URL works once and expires; call `document_upload` again for a new one.
+
+Never emit file bytes or base64 yourself. Content that is not yet a file should be saved to a local file first. `ingest_mode` defaults to `semantic`; use `graph` only when relation extraction is intended and authorized.
+
+Supported structured uploads include `.pptx`, `.docx`, `.html`, and `.htm`:
+
+- PPTX retains visible body text, tables, existing speaker notes, accessible chart data,
+  image OCR, slide numbers, and parser-known structure indexes.
+- DOCX retains headings, paragraphs, tables, and image OCR in block order. It does not
+  invent page numbers.
+- HTML/HTM is converted from the uploaded bytes with `markdownify`. The service does
+  not fetch URLs or resources, execute JavaScript, render dynamic pages, or extract a
+  main article.
+
+Legacy `.ppt` and `.doc` are rejected before storage or background work. Ask the user
+to open them in PowerPoint, Word, or WPS, save as `.pptx` or `.docx`, and upload the
+converted file. Do not install LibreOffice/Tika or send the file to a conversion
+service as a workaround.
+
+When quality matters, inspect the terminal status: `parser_fidelity` is `structured`,
+`structured_partial`, or `text_only_best_effort`; `parser_warnings`, OCR fields, and
+structured failures explain local loss. A partial fidelity value is conversion
+metadata, not a separate lifecycle state.
+
+Authorization is the point of this skill:
+
+- Reading, summarizing, or editing a local file this turn is NOT authorization to upload it.
+- Confirm explicit authorization, per file, before uploading.
+- Never upload secrets, tokens, passwords, sensitive originals, unrelated files, or temporary logs.
+- If authorization is unclear, ask first.
+
+Confirm each file separately before upload.
+
+## Tool Selection Guide
+
+cosens tool selection guide:
+- Use the configured `cosens` MCP tools directly. Authentication is managed by the MCP client's OAuth session; do not hand-craft curl or ad hoc HTTP requests for memory access. The one exception is running the upload command that `document_upload` returns.
+- Do not pass `user_id`, `graph_id`, or `graph_ids`; ACL resolves memory scope from the authenticated OAuth identity.
+- `user_get`: authenticated user profile and session bootstrap. Optional `query`: omit it for broad bootstrap/profile context, or pass one focused current-user profile query for preferences, hobbies, owned items, working style, or durable personal details. Without a query it returns a bounded bootstrap with sections for durable profile (长期画像), recent focus items from the last 14 days (近期重点事项), and long-running commitments (长期重要事项); with a query it returns bounded durable profile context from the authenticated user's profile scope. Personal-life memories (interests and hobbies, family, personal devices) are returned only with `include_private=true`; set it when the question is about them. It hides graph ids, ACL scope, and diagnostics. Use the durable user profile it returns as the primary source for user-profile questions such as "who am I", "what are my preferences", "what are my hobbies", "what do I own", or other long-term personal memory. Use `memory_recall(query)` for broader query-specific retrieval or exact evidence expansion.
+- `memory_recall`: semantic retrieval and context assembly. Required `query`: one focused question with concrete anchors when available. Use it when prior decisions, preferences, project history, repository history, or cross-session state may affect the answer, especially when `user_get` is insufficient or exact evidence needs expansion. When the question has several distinct parts, recall each part with its own focused query that keeps the anchors it needs (each recall has its own token budget), then answer from all the results; a question with one part needs one recall. Stay within any cap on tool calls you were given. One focused question about one retrieval target (a person, event, decision, document or project) with the concrete anchors that identify it. Keep answer instructions, comparison criteria and guessed conclusions out of the query; apply them when you write the answer. Pass start_time/end_time only when the user stated the time range. A date you are not sure of goes neither in the query text nor in the window: the window drops memories written outside it, and dates in the query text are not read as a window. Set detailed=true when the answer combines many memories: a list, a history, a handoff or status summary of a project, or any summary across several records. When you split such a question into parts, set it on each part's recall. It returns about three times as many memories (3000 instead of 1000 estimated tokens). Leave it off for a question that one memory answers, when a default recall already answered, or under a tight token or tool-call cap. In a memory's text, what follows `summary:` is the summary of a long episode, not its original text (a sentence before `summary:` is quoted from the episode); to read the original, call memory_get with that memory's uuid (the episode uuid). Do not call memory_recall for general knowledge that is not about the user's own work, people or records; memory holds only what was written to it. If the returned memories name the specific item you are asking about (for example a ticket id, document title, or person) but do not contain the detail you need, recall again with that identifier in the query. A detail missing from one recall result is not evidence that no such record exists.
+- `memory_get`: exact UUID drilldown. Required known `uuid`. Use it only after `memory_recall` or another trusted source gives a stable uuid for an entity, edge, episode, community, document, or thread-like object. Do not use `memory_get` for fuzzy search.
+- `timeline_get`: exact `thread_id` timeline drilldown. Use it when recall, bootstrap, or visible context gives a concrete `thread_id` and you need the thread summary or ordered episodes. Do not use `timeline_get` without an exact `thread_id`.
+- `recall_feedback`: report which recalled memories you used. After you answer with `memory_recall` results, call it once with one item per memory you judged: the `recall_id` of the response it came from, its `uuid`, and `used` (your answer relied on it) or `not_relevant` (you read it and judged it unrelated). Do not report memories you did not read. The call is refused as a whole when a `recall_id` is not one of your own recent recalls or a `uuid` was not in that response.
+- `memory_write`: durable memory write. Required `data`, `type`, and `created_at`. Use it after the user confirms durable preferences, decisions, reusable project conventions, or stable summaries that should survive this session. Write concise natural-language text or message content only, preferably 1-3 sentences about one coherent assertion, decision, convention, or summary. Skip temporary tasks, logs, code snippets, one-off errors, raw transcripts, unconfirmed guesses, secrets, and large artifacts. For preferences, profile details, or working-style details about the authenticated current user, call `user_get` first when the user's display name is not already visible, then write the source sentence with that display name. Do not rewrite the current user as generic `user`, `the user`, or `用户`. Follow the MCP tool description's current target-size guidance from backend config.
+- `document_upload`: durable document ingest. Required `filename`; the call returns a one-time `upload_url` and a `curl` command. Run that command with the local file path so the shell sends the bytes; never emit file bytes or base64. Hosts that attach files in the conversation (ChatGPT file params) fill `file` instead; the server fetches it and returns the upload result. `mime_type` is optional and inferred from filename; `uploaded_at` is optional and defaults to backend upload time. Use it for long files, PDFs, reports, meeting notes, or other document artifacts that should become searchable memory. PPTX retains slide body/table/notes/chart/OCR provenance; DOCX retains ordered blocks and OCR without invented page numbers; HTML is converted from uploaded bytes only, with no URL fetch or JavaScript execution. Legacy PPT/DOC must first be saved as PPTX/DOCX in PowerPoint, Word, or WPS. Ask before uploading local documents, screenshots, logs, or private files. Default `ingest_mode` is semantic; use graph only when relation extraction is intended and authorized.
+- `memory_delete`: durable memory deletion. Required `uuid` and `target_type`. Use it only when the user asks for something to be removed and a previous read gave you the exact uuid. `episode` removes one memory source and whatever only it supported, which is what forgetting something means. `document` removes the uploaded file while its derived episodes stay recallable. `entity` and `edge` repair the graph and do not forget anything, because the episodes behind them remain. Deletion cannot be undone, so never delete to tidy up or to replace a memory.
+Default flow: `user_get` for authenticated user profile and bootstrap; for user-profile questions, answer from the durable profile first and only use `memory_recall` when the profile is insufficient. For project, repository, decision, or broader cross-session context, use `memory_recall` first, then `memory_get` or `timeline_get` for exact follow-up. After answering from `memory_recall` results, call `recall_feedback` once with the memories you used and the ones you judged not relevant. Use `memory_write` or `document_upload` only when durable persistence is appropriate.

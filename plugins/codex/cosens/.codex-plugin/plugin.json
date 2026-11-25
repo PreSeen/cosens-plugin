@@ -1,6 +1,6 @@
 {
   "name": "cosens",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "CoSens Memory and RSI: recall and save durable context, upload documents, and reuse Recipes that CoSens learns from work you confirm.",
   "author": {
     "name": "PreSeen AI",
@@ -20,7 +20,7 @@
   "hooks": "./hooks/hooks.json",
   "interface": {
     "displayName": "CoSens",
-    "shortDescription": "Memory and reusable Recipes for your agent.",
+    "shortDescription": "Memory and reusable Recipes",
     "longDescription": "Connects your agent to CoSens through one MCP server. Memory recalls your past decisions, preferences, people and documents and saves what you confirm. RSI finds a reusable Recipe before a task and learns a new version from deliveries you confirm. Requires a CoSens account.",
     "developerName": "PreSeen AI",
     "category": "Productivity",
@@ -29,6 +29,7 @@
       "Write"
     ],
     "websiteURL": "https://cosens.ai/docs/",
+    "supportURL": "https://cosens.ai/support/",
     "privacyPolicyURL": "https://cosens.ai/privacy/",
     "termsOfServiceURL": "https://cosens.ai/terms/",
     "defaultPrompt": [

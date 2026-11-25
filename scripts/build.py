@@ -5,7 +5,10 @@ source/ is the only place to edit. This script writes:
   plugins/claude/cosens/   Claude plugin (Claude apps, Cowork, Claude Code)
   plugins/codex/cosens/    Codex plugin
   .claude-plugin/marketplace.json, .agents/plugins/marketplace.json
-and, with --zip, dist/cosens-claude-<version>.zip for Customize > Plugins > Upload plugin.
+  plugins/directory/{claude,codex}/cosens/
+                           public-directory packages: no hooks, own README
+and, with --zip, dist/cosens-claude-<version>.zip for Customize > Plugins > Upload plugin
+and dist/cosens-codex-directory-<version>.zip for platform.openai.com/plugins.
 
 --check regenerates in memory and fails if a committed file differs, so CI catches
 an edit made to a generated file instead of to source/.
@@ -75,6 +78,7 @@ def codex_manifest(m: dict) -> dict:
             "category": m["category"],
             "capabilities": ["Read", "Write"],
             "websiteURL": m["homepage"],
+            "supportURL": m["supportUrl"],
             "privacyPolicyURL": m["privacyPolicyUrl"],
             "termsOfServiceURL": m["termsOfServiceUrl"],
             "defaultPrompt": m["defaultPrompt"],
@@ -98,10 +102,31 @@ def write_plugin(dest: Path, host: str, m: dict) -> None:
     (manifest_dir / "plugin.json").write_text(dump(manifest), encoding="utf-8")
 
 
+def write_directory_plugin(dest: Path, host: str, m: dict) -> None:
+    """The package for a public plugin directory: OpenAI refuses lifecycle hooks, and
+    Anthropic's policy limits software that steers Claude on its own."""
+    for name in ("skills", "assets"):
+        shutil.copytree(SOURCE / name, dest / name)
+    shutil.copyfile(SOURCE / "mcp.json", dest / ".mcp.json")
+    shutil.copyfile(ROOT / "LICENSE", dest / "LICENSE")
+    shutil.copyfile(SOURCE / "directory" / "README.md", dest / "README.md")
+    if host == "claude":
+        manifest_dir, manifest = dest / ".claude-plugin", claude_manifest(m)
+    else:
+        manifest_dir, manifest = dest / ".codex-plugin", codex_manifest(m)
+        del manifest["hooks"]
+        review = json.loads((SOURCE / "directory" / "codex-review.json").read_text(encoding="utf-8"))
+        manifest["extensions"] = {"com.openai": review}
+    manifest_dir.mkdir()
+    (manifest_dir / "plugin.json").write_text(dump(manifest), encoding="utf-8")
+
+
 def generate(out: Path) -> None:
     m = meta()
     write_plugin(out / "plugins" / "claude" / m["name"], "claude", m)
     write_plugin(out / "plugins" / "codex" / m["name"], "codex", m)
+    for host in ("claude", "codex"):
+        write_directory_plugin(out / "plugins" / "directory" / host / m["name"], host, m)
     claude_catalog = {
         "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
         "name": MARKETPLACE,
@@ -150,11 +175,10 @@ def files(base: Path) -> dict[str, bytes]:
     return found
 
 
-def build_zip(m: dict) -> Path:
-    plugin = ROOT / "plugins" / "claude" / m["name"]
+def build_zip(m: dict, plugin: Path, label: str) -> Path:
     dist = ROOT / "dist"
     dist.mkdir(exist_ok=True)
-    target = dist / f"{m['name']}-claude-{m['version']}.zip"
+    target = dist / f"{m['name']}-{label}-{m['version']}.zip"
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(plugin.rglob("*")):
             if path.is_file() and "__pycache__" not in path.parts:
@@ -184,7 +208,10 @@ def main() -> int:
                 shutil.copytree(Path(tmp) / top, ROOT / top)
     print(f"Wrote {len(expected)} files")
     if args.zip:
-        print(f"Wrote {build_zip(meta()).relative_to(ROOT)}")
+        m = meta()
+        for label, parts in (("claude", ("claude",)), ("codex-directory", ("directory", "codex"))):
+            plugin = ROOT.joinpath("plugins", *parts, m["name"])
+            print(f"Wrote {build_zip(m, plugin, label).relative_to(ROOT)}")
     return 0
 
 
