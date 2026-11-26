@@ -52,5 +52,16 @@ class RecordSession(unittest.TestCase):
             self.assertTrue(entry["hooks"][0]["command"].endswith(f"record-session {host}"))
 
 
+class ToolGuide(unittest.TestCase):
+    def test_user_get_sections_are_described_without_chinese_heading_names(self):
+        """CoSens returns English section titles; the guide must not name other ones."""
+        for relative in ("scripts/emit_system_message.py", "skills/recall/SKILL.md", "skills/document/SKILL.md"):
+            text = (ROOT / "source" / relative).read_text(encoding="utf-8")
+            lines = [line for line in text.splitlines() if "`user_get`: authenticated user profile" in line]
+            self.assertTrue(lines, relative)
+            for line in lines:
+                self.assertNotRegex(line, "[\u4e00-\u9fff]", relative)
+
+
 if __name__ == "__main__":
     unittest.main()
