@@ -1,6 +1,18 @@
 {
   "description": "Cosens hooks for Claude Code: session-start memory bootstrap, pre-compaction durable-memory preservation, and stop-time memory hygiene.",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(mcp__plugin_cosens_cosens__memory_write|mcp__cosens__memory_write)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/emit_system_message.py\" fill-thread-id claude",
+            "statusMessage": "cosens: linking this memory to the session"
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [
