@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$PLUGIN_ROOT/scripts/emit_system_message.py\" fill-thread-id codex",
-            "statusMessage": "cosens: linking this memory to the session"
+            "command": "python3 \"$PLUGIN_ROOT/scripts/emit_system_message.py\" record-session codex",
+            "statusMessage": "cosens: recording the session on this memory"
           }
         ]
       }

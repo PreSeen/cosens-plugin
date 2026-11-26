@@ -9,7 +9,7 @@ The official CoSens plugin for Claude and Codex. It connects your agent to CoSen
 | `document` | Uploads a long file you authorize so it becomes searchable memory. |
 | `workflow` | Finds a reusable Recipe before a task, and lets CoSens learn a new version from a delivery you confirm. |
 
-In Claude Code and Codex the plugin also adds session hooks: a memory bootstrap at session start, and a reminder to keep durable context before compaction and before finishing. Before `memory_write`, a hook fills `thread_id` with the session id, so memories from one session stay linked. Claude chat ignores hooks.
+In Claude Code and Codex the plugin also adds session hooks: a memory bootstrap at session start, and a reminder to keep durable context before compaction and before finishing. Before `memory_write`, a hook records the session id as `source.extra.session_id`. It does not set `thread_id`, so one session does not become one Memory Thread. Claude chat ignores hooks.
 
 You need a CoSens account. [Request access](https://cosens.ai/request-access/).
 
