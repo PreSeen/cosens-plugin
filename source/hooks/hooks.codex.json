@@ -1,5 +1,17 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(mcp__cosens__memory_write|cosens\\.memory_write|memory_write)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/scripts/emit_system_message.py\" fill-thread-id codex",
+            "statusMessage": "cosens: linking this memory to the session"
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [

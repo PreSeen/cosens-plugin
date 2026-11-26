@@ -13,3 +13,4 @@ jobs:
           python-version: "3.12"
       - run: python3 scripts/build.py --check
       - run: python3 -m py_compile source/scripts/emit_system_message.py
+      - run: python3 -m unittest discover -s tests

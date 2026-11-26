@@ -185,9 +185,7 @@ def _stop_hook_result(hook_input: dict) -> dict | None:
     session_state["accumulated_chars_since_last_memory_reminder"] = 0
     _save_hook_state(state)
 
-    reason = MESSAGES["stop"]
-    reason = f"{reason} When writing from this Codex session, pass thread_id: {session_id}."
-    return {"decision": "block", "reason": reason}
+    return {"decision": "block", "reason": MESSAGES["stop"]}
 
 
 def _candidate_tool_names(value: Any) -> list[str]:
@@ -257,6 +255,33 @@ def _read_hook_input() -> dict:
     return payload if isinstance(payload, dict) else {}
 
 
+def _fill_thread_id(host: str) -> None:
+    """Set memory_write's thread_id to the host session id, so the model never has to.
+
+    The whole call is read: a rewrite replaces the tool input, so a truncated read
+    would lose content.
+    """
+    try:
+        hook_input = json.loads(sys.stdin.read())
+    except json.JSONDecodeError:
+        return
+    if not isinstance(hook_input, dict):
+        return
+    session_id = _session_id_from_hook_input(hook_input)
+    tool_input = hook_input.get("tool_input")
+    if not session_id or not isinstance(tool_input, dict):
+        return
+    output: dict[str, Any] = {
+        "hookEventName": "PreToolUse",
+        "updatedInput": {**tool_input, "thread_id": session_id},
+    }
+    if host == "codex":
+        # Codex applies a rewrite only together with "allow". Claude Code applies it
+        # alone, and "allow" there would skip the user's permission prompt.
+        output["permissionDecision"] = "allow"
+    print(json.dumps({"hookSpecificOutput": output}, ensure_ascii=False))
+
+
 def _session_start_context() -> str:
     lines = [
         "cosens session bootstrap:",
@@ -307,6 +332,9 @@ def _find_repo_root(start: Path) -> Path | None:
 
 def main() -> int:
     event = sys.argv[1] if len(sys.argv) > 1 else ""
+    if event == "fill-thread-id":
+        _fill_thread_id(sys.argv[2] if len(sys.argv) > 2 else "")
+        return 0
     if event == "session-start":
         print(
             json.dumps(
