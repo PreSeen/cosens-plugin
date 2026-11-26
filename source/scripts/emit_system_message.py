@@ -255,9 +255,11 @@ def _read_hook_input() -> dict:
     return payload if isinstance(payload, dict) else {}
 
 
-def _fill_thread_id(host: str) -> None:
-    """Set memory_write's thread_id to the host session id, so the model never has to.
+def _record_session(host: str) -> None:
+    """Record the host session id on memory_write as source.extra.session_id.
 
+    It is provenance only. thread_id would make Memory group every write of a session
+    into one Thread, and one session often covers unrelated topics.
     The whole call is read: a rewrite replaces the tool input, so a truncated read
     would lose content.
     """
@@ -271,9 +273,13 @@ def _fill_thread_id(host: str) -> None:
     tool_input = hook_input.get("tool_input")
     if not session_id or not isinstance(tool_input, dict):
         return
+    source = tool_input.get("source") or {}
+    if not isinstance(source, dict) or not isinstance(source.get("extra") or {}, dict):
+        return
+    extra = {**(source.get("extra") or {}), "session_id": session_id}
     output: dict[str, Any] = {
         "hookEventName": "PreToolUse",
-        "updatedInput": {**tool_input, "thread_id": session_id},
+        "updatedInput": {**tool_input, "source": {**source, "extra": extra}},
     }
     if host == "codex":
         # Codex applies a rewrite only together with "allow". Claude Code applies it
@@ -332,8 +338,8 @@ def _find_repo_root(start: Path) -> Path | None:
 
 def main() -> int:
     event = sys.argv[1] if len(sys.argv) > 1 else ""
-    if event == "fill-thread-id":
-        _fill_thread_id(sys.argv[2] if len(sys.argv) > 2 else "")
+    if event == "record-session":
+        _record_session(sys.argv[2] if len(sys.argv) > 2 else "")
         return 0
     if event == "session-start":
         print(
