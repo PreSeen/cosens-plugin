@@ -1,7 +1,7 @@
 {
   "name": "cosens",
   "displayName": "CoSens",
-  "version": "0.6.5",
+  "version": "0.6.10",
   "description": "CoSens Memory and RSI: recall and save durable context, upload documents, and reuse Recipes that CoSens learns from work you confirm.",
   "author": {
     "name": "PreSeen AI",
