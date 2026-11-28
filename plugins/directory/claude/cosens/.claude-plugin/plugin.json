@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "cosens",
   "displayName": "CoSens",
-  "version": "0.6.7",
+  "version": "0.6.8",
   "description": "CoSens Memory and RSI: recall and save durable context, upload documents, and reuse Recipes that CoSens learns from work you confirm.",
   "author": {
     "name": "PreSeen AI",
